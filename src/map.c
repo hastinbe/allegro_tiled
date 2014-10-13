@@ -25,7 +25,6 @@
  *
  * Various map-related utility methods.
  */
-
 #include "map.h"
 
 /*
@@ -72,17 +71,16 @@ ALLEGRO_MAP_TILE *al_get_single_tile(ALLEGRO_MAP *map, ALLEGRO_MAP_LAYER *layer,
  */
 ALLEGRO_MAP_TILE **al_get_tiles(ALLEGRO_MAP *map, int x, int y, int *length)
 {
+	(*length) = 0;
 	ALLEGRO_MAP_TILE **results = (ALLEGRO_MAP_TILE**)al_malloc(sizeof(ALLEGRO_MAP_TILE*) * (map->tile_layer_count));
 
-	int i;
+
 	GSList *layers = map->tile_layers;
-	for (i = 0; layers; i++) {
+	while (layers) {
 		ALLEGRO_MAP_LAYER *layer = (ALLEGRO_MAP_LAYER*)layers->data;
 		layers = g_slist_next(layers);
-		results[i] = al_get_single_tile(map, layer, x, y);
+		results[(*length)++] = al_get_single_tile(map, layer, x, y);
 	}
-
-	(*length) = i + 1;
 	return results;
 }
 
