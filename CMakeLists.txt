@@ -13,70 +13,68 @@ option(WANT_EXAMPLE "build the example" true)
 # Use pkg-config for all deps
 find_package(PkgConfig)
 
-# Note: I've set this to not just run for APPLE
-# just in case someone's using linuxbrew
-add_homebrew_package_path(libxml2 zlib)
+if(PKG_CONFIG_FOUND)
 
-if(APPLE)
-	pkg_check_modules(
-		ALLEGRO REQUIRED
-		allegro-5.0
-		allegro_main-5.0
-		allegro_image-5.0
+	# Note: I've set this to not just run for APPLE
+	# just in case someone's using linuxbrew
+	add_homebrew_package_path(libxml2 zlib)
+
+	if(APPLE)
+		pkg_search_module(ALLEGRO REQUIRED allegro-5 allegro-5.0)
+		pkg_search_module(ALLEGRO_MAIN REQUIRED allegro_main-5 allegro_main-5.0)
+		pkg_search_module(ALLEGRO_IMAGE REQUIRED allegro_image-5 allegro_image-5.0)
+	else()
+		pkg_search_module(ALLEGRO REQUIRED allegro-5 allegro-5.0)
+		pkg_search_module(ALLEGRO_IMAGE REQUIRED allegro_image-5 allegro_image-5.0)
+	endif()
+
+	pkg_check_modules(GLIB REQUIRED glib-2.0)
+	pkg_check_modules(LIBXML REQUIRED libxml-2.0)
+	pkg_check_modules(ZLIB REQUIRED zlib)
+
+	# Generate pc files
+	configure_file(
+		misc/allegro_tiled-5.pc.in
+		misc/allegro_tiled-5.pc
+		@ONLY
+	)
+
+	configure_file(
+		misc/allegro_tiled-5.pc.in
+		misc/allegro_tiled-5.0.pc
+		@ONLY
+	)
+
+	install(
+		FILES misc/allegro_tiled-5.pc misc/allegro_tiled-5.0.pc
+		DESTINATION lib/pkgconfig
 	)
 else()
-	pkg_check_modules(
-		ALLEGRO REQUIRED
-		allegro-5.0
-		allegro_image-5.0
-	)
+	message("pkg-config is not installed on this system, using environment variables.")
+	find_env_deps()
 endif()
-
-pkg_check_modules(
-	GLIB REQUIRED
-	glib-2.0
-)
-
-pkg_check_modules(
-	LIBXML REQUIRED
-	libxml-2.0
-)
-
-pkg_check_modules(
-	ZLIB REQUIRED
-	zlib
-)
 
 link_directories(
 	${ALLEGRO_LIBRARY_DIRS}
+	${ALLEGRO_MAIN_LIBRARY_DIRS}
+	${ALLEGRO_LIBRARY_LIBRARY_DIRS}
 	${GLIB_LIBRARY_DIRS}
 	${LIBXML_LIBRARY_DIRS}
 	${ZLIB_LIBRARY_DIRS}
 )
 
 include_directories(
+	${CMAKE_SOURCE_DIR}/include
 	${ALLEGRO_INCLUDE_DIRS}
+	${ALLEGRO_MAIN_INCLUDE_DIRS}
+	${ALLEGRO_INCLUDE_INCLUDE_DIRS}
 	${GLIB_INCLUDE_DIRS}
 	${LIBXML_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS}
-	${CMAKE_SOURCE_DIR}/include
 )
 
 file(GLOB allegro_tiled_headers include/allegro5/*.h)
 file(GLOB allegro_tiled_sources src/*.c)
-
-# Generate pc files
-configure_file(
-	misc/allegro_tiled-5.pc.in
-	misc/allegro_tiled-5.pc
-	@ONLY
-)
-
-configure_file(
-	misc/allegro_tiled-5.pc.in
-	misc/allegro_tiled-5.0.pc
-	@ONLY
-)
 
 # Actually build the library
 add_library(
@@ -88,6 +86,8 @@ add_library(
 target_link_libraries(
 	allegro_tiled
 	${ALLEGRO_LIBRARIES}
+	${ALLEGRO_MAIN_LIBRARIES}
+	${ALLEGRO_IMAGE_LIBRARIES}
 	${GLIB_LIBRARIES}
 	${LIBXML_LIBRARIES}
 	${ZLIB_LIBRARIES}
@@ -102,11 +102,6 @@ install(
 install(
 	FILES ${allegro_tiled_headers}
 	DESTINATION include/allegro5
-)
-
-install(
-	FILES misc/allegro_tiled-5.pc misc/allegro_tiled-5.0.pc
-	DESTINATION lib/pkgconfig
 )
 
 # Build the example if the option is enabled

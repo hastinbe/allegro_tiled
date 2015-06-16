@@ -15,8 +15,8 @@
  * For more information, visit http://www.gnu.org/copyleft
  */
 
-#ifndef ALLEGRO_ALLEGRO_H
-#define ALLEGRO_ALLEGRO_H
+#ifndef ALLEGRO_TILED_H
+#define ALLEGRO_TILED_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,6 +35,9 @@ typedef struct _ALLEGRO_MAP_TILESET        ALLEGRO_MAP_TILESET;
 typedef struct _ALLEGRO_MAP_TILE           ALLEGRO_MAP_TILE;
 typedef struct _ALLEGRO_MAP_OBJECT_GROUP   ALLEGRO_MAP_OBJECT_GROUP;
 typedef struct _ALLEGRO_MAP_OBJECT         ALLEGRO_MAP_OBJECT;
+
+enum relative_to { RELATIVE_TO_EXE, RELATIVE_TO_CWD };
+void al_find_resources_as(enum relative_to rel);
 
 ALLEGRO_MAP *al_open_map(const char *dir, const char *filename);
 
@@ -56,10 +59,16 @@ ALLEGRO_MAP_OBJECT **al_get_objects(ALLEGRO_MAP_LAYER *layer, int *length);
 ALLEGRO_MAP_OBJECT **al_get_objects_for_name(ALLEGRO_MAP_LAYER *layer, char *name, int *length);
 char *al_get_tile_property(ALLEGRO_MAP_TILE *tile, char *name, char *def);
 char *al_get_object_property(ALLEGRO_MAP_OBJECT *object, char *name, char *def);
+int al_get_object_x(ALLEGRO_MAP_OBJECT *object);
+int al_get_object_y(ALLEGRO_MAP_OBJECT *object);
+void al_get_object_pos(ALLEGRO_MAP_OBJECT *object, int *x, int *y);
+int al_get_object_width(ALLEGRO_MAP_OBJECT *object);
+int al_get_object_height(ALLEGRO_MAP_OBJECT *object);
+void al_get_object_dims(ALLEGRO_MAP_OBJECT *object, int *width, int *height);
+bool al_get_object_visible(ALLEGRO_MAP_OBJECT *object);
 
 // accessors
 int al_get_map_width(ALLEGRO_MAP *map);
-int al_get_map_height(ALLEGRO_MAP *map);
 int al_get_map_height(ALLEGRO_MAP *map);
 int al_get_tile_width(ALLEGRO_MAP *map);
 int al_get_tile_height(ALLEGRO_MAP *map);
